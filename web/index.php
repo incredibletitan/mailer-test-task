@@ -1,58 +1,38 @@
 <?php
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use src\components\BoardingCardsProcessor;
-use src\components\BasicBoardingCardsSort;
-use src\components\BoardingCardsConverter;
+//Create a new PHPMailer instance
+$mail = new PHPMailer();
+$mail->isSMTP();
+$mail->SMTPDebug = 2;
+$mail->Debugoutput = 'html';
+$mail->Host = 'smtp.gmail.com';
+$mail->Port = 587;
+$mail->SMTPSecure = 'tls';
+$mail->SMTPAuth = true;
+$mail->Username = "100sbsh@gmail.com";
+$mail->Password = "tqwpz3fE";
+//Set who the message is to be sent from
+$mail->setFrom('100sbsh@gmail.com', 'First Last');
 
-/**
- * This API requires 3 params
- * cards - JSON list with attributes:
- *  type(required) - Can be plane, train, bus
- *  startPoint(required) - Start point, e.g. Equador
- *  endPoint(required) - End point, e.g. Dakka,
- *  number(required) - Race number, e.g. "22122BD",
- *  seat - Seat number, e.g "22"
- *  baggageNumber - Baggage number, e.g 1A
- * start - Point, from which trip starts,
- * end - Point where trip ends
- *
- * So, request to API should look like this
- * "cards" :[
- *       {
- *       "type": "plane",
- *       "startPoint": "Equador",
- *       "endPoint": "Kuta",
- *       "number": "A23DC",
- *       "gate": "10F",
- *       "seat": "11B",
- *       "baggageNumber": ""
- *       },
- *       {
- *       "type": "plane",
- *       "startPoint": "Dakka",
- *      "endPoint": "Equador",
- *      "number": "A23DC",
- *       "gate": "10F",
- *       "baggageNumber": ""
- *       }],
- * "start": "Dakka",
- * "end": "Kuta"
- */
-if (isset($_POST['cards'], $_POST['start'], $_POST['end'])) {
-    //Convert cards from json to list of Transport objects
-    $cardsList = BoardingCardsConverter::getTransportListFromJson($_POST['cards']);
-
-    //Sort the cards
-    $boardingCardsProcessor = new BoardingCardsProcessor();
-    $boardingCardsProcessor->addCards($cardsList);
-    $res = $boardingCardsProcessor->getSortedList(new BasicBoardingCardsSort(), $_POST['start'], $_POST['end']);
-
-    //Base on sorted cards, get list of description
-    $dm = new \src\components\DescriptionManager();
-    $dm->addBoardingCards($res);
-
-    //View the list in JSON format
-    echo json_encode($dm->getListWithDescriptions());
+//Set who the message is to be sent to
+$mail->addAddress('100sbsh@gmail.com', 'John Doe');
+//Set the subject line
+$mail->Subject = 'PHPMailer GMail SMTP test';
+//Read an HTML message body from an external file, convert referenced images to embedded,
+//convert HTML into a basic plain-text alternative body
+$mail->msgHTML('<h1>Hello guys</h1>', dirname(__FILE__));
+//Replace the plain text body with one created manually
+$mail->AltBody = 'This is a plain-text message body';
+//Attach an image file
+//send the message, check for errors
+if (!$mail->send()) {
+    echo "Mailer Error: " . $mail->ErrorInfo;
+} else {
+    echo "Message sent!";
+    //Section 2: IMAP
+    //Uncomment these to save your message in the 'Sent Mail' folder.
+    #if (save_mail($mail)) {
+    #    echo "Message saved!";
+    #}
 }
-
