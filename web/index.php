@@ -1,9 +1,16 @@
+<head>
+    <script src="js/tinymce/tinymce.min.js"></script>
+    <script>tinymce.init({ selector:'textarea' });</script>
+</head>
+
+<body>
 <form enctype="multipart/form-data" method="POST">
      <input type="text" name="title"> <br/>
     <textarea name="body"></textarea> <br/>
     <input name="files[]" type="file" multiple="multiple"/><br/>
     <input name="sbn" type="submit" />
 </form>
+</body>
 
 
 
@@ -38,7 +45,7 @@ $mail->addAddress('100sbsh@gmail.com', 'John Doe');
 $mail->Subject = 'PHPMailer GMail SMTP test';
 //Read an HTML message body from an external file, convert referenced images to embedded,
 //convert HTML into a basic plain-text alternative body
-$mail->msgHTML('<h1>Hello guys</h1>', dirname(__FILE__));
+$mail->msgHTML($_POST['body']);
 //Replace the plain text body with one created manually
 $mail->AltBody = 'This is a plain-text message body';
 
