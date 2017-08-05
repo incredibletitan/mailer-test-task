@@ -1,5 +1,22 @@
+<form enctype="multipart/form-data" method="POST">
+     <input type="text" name="title"> <br/>
+    <textarea name="body"></textarea> <br/>
+    <input name="files[]" type="file" multiple="multiple"/><br/>
+    <input name="sbn" type="submit" />
+</form>
+
+
+
 <?php
+
+
+if (!isset($_POST['sbn'])) {
+    return;
+}
+
 require_once __DIR__ . '/../vendor/autoload.php';
+
+
 
 //Create a new PHPMailer instance
 $mail = new PHPMailer();
@@ -24,6 +41,27 @@ $mail->Subject = 'PHPMailer GMail SMTP test';
 $mail->msgHTML('<h1>Hello guys</h1>', dirname(__FILE__));
 //Replace the plain text body with one created manually
 $mail->AltBody = 'This is a plain-text message body';
+
+
+if (isset($_FILES['files']) ){
+    $factory = new FileUpload\FileUploadFactory(
+        new FileUpload\PathResolver\Simple(__DIR__ . '/../uploads'),
+        new FileUpload\FileSystem\Simple(),
+        [
+            new FileUpload\Validator\SizeValidator('3M')
+        ]
+    );
+
+    $instance = $factory->create($_FILES['files'], $_SERVER);
+    // Doing the deed
+    list($files, $headers) = $instance->processAll();
+
+    foreach($files as $file){
+        if ($file->completed) {
+            $mail->addAttachment($file->getRealPath());
+        }
+    }
+}
 //Attach an image file
 //send the message, check for errors
 if (!$mail->send()) {
